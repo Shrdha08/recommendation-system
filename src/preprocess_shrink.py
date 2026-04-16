@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 #reduce number of users to top 10000 users and top 2000 movies
-df=pd.read_csv('D:/movieRecommendationSystem/data/raw/preprocessed_ratings.csv')
+df=pd.read_csv('data/processed/preprocessed_ratings.csv')
 
 # total user and movie ids
 N=len(df['userId'].unique())
@@ -77,4 +77,4 @@ df_small=df_small.rename(columns={
     'MovieIdsNew':'movieId'
 })
 
-df_small.to_csv('data/raw/preprocessed_top_rating.csv',index=False)
+df_small.to_csv('data/processed/preprocessed_top_rating.csv',index=False)

@@ -5,23 +5,23 @@ import os
 from sklearn.utils import shuffle
 from sortedcontainers import SortedList
 
-if not os.path.exists('data/raw/user2movie.pkl') or \
-not os.path.exists('data/raw/movie2user.pkl') or \
-not os.path.exists('data/raw/usermovie2rating.pkl') or \
-not os.path.exists('data/raw/usermovie2rating_test.pkl'):
+if not os.path.exists('data/processed/user2movie.pkl') or \
+not os.path.exists('data/processed/movie2user.pkl') or \
+not os.path.exists('data/processed/usermovie2rating.pkl') or \
+not os.path.exists('data/processed/usermovie2rating_test.pkl'):
     from src import preprocess2dict
 
 # pickle file stores python object in binary form in a file- we take that file and then reconstruct python object (dictionary in this case) using pickle.load()
-with open('data/raw/user2movie.pkl','rb') as f:
+with open('data/processed/user2movie.pkl','rb') as f:
     user2movie=pickle.load(f)
 
-with open('data/raw/movie2user.pkl','rb') as f:
+with open('data/processed/movie2user.pkl','rb') as f:
     movie2user=pickle.load(f)
 
-with open('data/raw/usermovie2rating.pkl','rb') as f:
+with open('data/processed/usermovie2rating.pkl','rb') as f:
     usermovie2rating=pickle.load(f)
 
-with open('data/raw/usermovie2rating_test.pkl','rb') as f:
+with open('data/processed/usermovie2rating_test.pkl','rb') as f:
     usermovie2rating_test=pickle.load(f)
 
 print('step 1 done')
@@ -33,12 +33,10 @@ M = max(m1, m2) + 1
 k=25 #to get k closest neighbours - k highest weights
 limit=5 #users must have atleast 5 movies in common
 
-#get each user's neighbours,each users avg rating,each user's
-neighbors=[]
-averages=[]
-deviations=[]
-
+user_stats=[]
 for i in range(N):
+    if i%1000==0:
+        print(f'{i} users elapsed')
     movies_i=user2movie[i]
     movies_i_set=set(movies_i)
 
@@ -49,23 +47,31 @@ for i in range(N):
     dev_i_values=np.array(list(dev_i.values()))
     sigma_i=np.sqrt(dev_i_values.dot(dev_i_values))#denominator in pearson correlation
 
+    user_stats.append((movies_i_set,avg_i,dev_i,sigma_i))
+
+
+#get each user's neighbours,each users avg rating,each user's
+neighbors=[]
+averages=[]
+deviations=[]
+
+for i in range(N):
+    if i%200==0:
+        print(f'{i} users elapsed')
+
+    # get calculated value
+    movies_i_set,avg_i,dev_i,sigma_i=user_stats[i]
+    
     averages.append(avg_i)
     deviations.append(dev_i)
 
     sl=SortedList()
     for j in range(N):
         if j!=i:
-            movies_j=user2movie[j]
-            movies_j_set=set(movies_j)
+            movies_j_set,avg_j,dev_j,sigma_j=user_stats[j]
             common_movies=(movies_i_set & movies_j_set)
 
             if len(common_movies)>limit:
-                ratings_j={movie:usermovie2rating[(j,movie)] for movie in movies_j}
-                avg_j=np.mean(list(ratings_j.values()))
-                dev_j={movie:rating-avg_j for movie,rating in ratings_j.items()}
-                dev_j_values=np.array(list(dev_j.values()))
-                sigma_j=np.sqrt(dev_j_values.dot(dev_j_values))#denominator in pearson correlation
-
                 w_ij=sum(dev_i[m]*dev_j[m] for m in common_movies)/(sigma_i*sigma_j)
 
                 sl.add((-w_ij,j))
@@ -100,7 +106,7 @@ def predict(i,m):
 training_predict=[]
 training_target=[]
 
-for (i,m),rating in usermovie2rating:
+for (i,m),rating in usermovie2rating.items():
     training_predict.append(predict(i,m))
     training_target.append(rating)
 
@@ -108,7 +114,7 @@ for (i,m),rating in usermovie2rating:
 test_predict=[]
 test_target=[]
 
-for (i,m),rating in usermovie2rating_test:
+for (i,m),rating in usermovie2rating_test.items():
     test_predict.append(predict(i,m))
     test_target.append(rating)
 

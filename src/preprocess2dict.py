@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.utils import shuffle
 
-df=pd.read_csv('data/raw/preprocessed_top_rating.csv')
+df=pd.read_csv('data/preprocessed/preprocessed_top_rating.csv')
 
 N=df['userId'].max()+1
 M=df['movieId'].max()+1
@@ -44,14 +44,14 @@ def update_usermovie2rating_test(row):
 
 df_test.apply(update_usermovie2rating_test,axis=1)
 
-with open('data/raw/user2movie.pkl','wb') as f:
+with open('data/preprocessed/user2movie.pkl','wb') as f:
     pickle.dump(user2movie,f)
 
-with open('data/raw/movie2user.pkl','wb') as f:
+with open('data/preprocessed/movie2user.pkl','wb') as f:
     pickle.dump(movie2user,f)
 
-with open('data/raw/usermovie2rating.pkl','wb') as f:
+with open('data/preprocessed/usermovie2rating.pkl','wb') as f:
     pickle.dump(usermovie2rating,f)
 
-with open('data/raw/usermovie2rating_test.pkl','wb') as f:
+with open('data/preprocessed/usermovie2rating_test.pkl','wb') as f:
     pickle.dump(usermovie2rating_test,f)
