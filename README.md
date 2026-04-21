@@ -87,3 +87,27 @@ This project implements **Matrix Factorization with bias and regularization** us
 This demonstrates a significant improvement in recommendation accuracy using latent factor models.
 
 ---
+## Neural Matrix Factorization (Keras)
+
+Implements matrix factorization using **Keras embeddings and gradient descent**.
+
+### Approach:
+
+* Learn user and movie embeddings
+* Predict rating using:
+  r̂(u, i) = Uᵤ · Wᵢ + bᵤ + bᵢ
+* Train using MSE loss
+
+### Model:
+
+* Inputs: userId, movieId
+* Embedding layers (user & movie)
+* Dot product + bias
+* Output: predicted rating
+
+### Results:
+
+* Train MSE ≈ 0.563  
+* Test MSE  ≈ 0.568
+
+---
