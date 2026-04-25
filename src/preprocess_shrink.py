@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pickle
 
 #reduce number of users to top 10000 users and top 2000 movies
 df=pd.read_csv('data/processed/preprocessed_ratings.csv')
@@ -46,28 +47,16 @@ top_movies_dict=dict(top_2000_movies)
 top_user_ids=set(top_users_dict.keys())
 top_movie_ids=set(top_movies_dict.keys())
 
-df_small=df[df['userId'].isin(top_user_ids) &df['movieIdsMapped'].isin(top_movie_ids)]
+df_small=df[df['userId'].isin(top_user_ids) &df['movieIdsMapped'].isin(top_movie_ids)].copy()
 
 #map user ids to new ids + same for movies
-new_user_id_map={}
-cnt=0
-
-top_user_ids_sorted = sorted(top_user_ids)
-
-for old in top_user_ids_sorted:
-    new_user_id_map[old]=cnt
-    cnt+=1
+unique_users = sorted(df_small['userId'].unique())
+new_user_id_map = {org: new for new, org in enumerate(unique_users)}
 
 df_small['userIdsNew']=df_small['userId'].map(new_user_id_map)
 
-top_movie_ids_sorted = sorted(top_movie_ids)
-
-new_movie_id_map={}
-cnt=0
-
-for old in top_movie_ids_sorted:
-    new_movie_id_map[old]=cnt
-    cnt+=1
+unique_movies = sorted(df_small['movieIdsMapped'].unique())
+new_movie_id_map = {org: new for new, org in enumerate(unique_movies)}
 
 df_small['MovieIdsNew']=df_small['movieIdsMapped'].map(new_movie_id_map)
 
@@ -78,3 +67,8 @@ df_small=df_small.rename(columns={
 })
 
 df_small.to_csv('data/processed/preprocessed_top_rating.csv',index=False)
+with open('data/processed/user_map.pkl','wb') as f:
+    pickle.dump(new_user_id_map,f)
+
+with open('data/processed/movie_map.pkl','wb') as f:
+    pickle.dump(new_movie_id_map,f)
