@@ -52,18 +52,20 @@ df_small=df[df['userId'].isin(top_user_ids) &df['movieIdsMapped'].isin(top_movie
 #map user ids to new ids + same for movies
 unique_users = sorted(df_small['userId'].unique())
 new_user_id_map = {org: new for new, org in enumerate(unique_users)}
+new_to_org_map = {value:key for key,value in new_user_id_map.items()}
 
 df_small['userIdsNew']=df_small['userId'].map(new_user_id_map)
 
 unique_movies = sorted(df_small['movieIdsMapped'].unique())
 new_movie_id_map = {org: new for new, org in enumerate(unique_movies)}
+new_to_org_movie={value:key for key,value in new_movie_id_map.items()}
+
 
 df_small['MovieIdsNew']=df_small['movieIdsMapped'].map(new_movie_id_map)
 
 df_small=df_small.drop(columns=['userId','movieIdsMapped'],axis=1)
 df_small=df_small.rename(columns={
-    'userIdsNew':'userId',
-    'MovieIdsNew':'movieId'
+    'userIdsNew':'userId'
 })
 
 df_small.to_csv('data/processed/preprocessed_top_rating.csv',index=False)
@@ -72,3 +74,6 @@ with open('data/processed/user_map.pkl','wb') as f:
 
 with open('data/processed/movie_map.pkl','wb') as f:
     pickle.dump(new_movie_id_map,f)
+
+with open ('models/neural collaborative filtering/saved model/moviemapping.pkl','wb') as f:
+    pickle.dump(new_to_org_movie,f)
