@@ -1,5 +1,19 @@
 venv/
+
+# Raw MovieLens dumps are large and re-downloadable.
 data/raw/
-data/processed/
+
+# Intermediate preprocessing output is ignored, except the two small files the
+# app needs to run, which are committed so the stack works from a fresh clone.
+data/processed/*
+!data/processed/final_movies.csv
+!data/processed/final_ratings.csv
 
 *.pkl
+
+__pycache__/
+*.pyc
+
+node_modules/
+dist/
+.vite/
